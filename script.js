@@ -94,6 +94,7 @@ function eventDateParts(isoDate) {
   const main = $("#main");
   const enterBtn = $("#enterBtn");
   const audioBtn = $("#audioBtn");
+  const scrollHint = $("#scrollHint");
 
   const rand = (min, max) => min + Math.random() * (max - min);
   const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -513,6 +514,44 @@ function eventDateParts(isoDate) {
   }
 
   /* ------------------------------------------------------------------ *
+   * 9b · scroll cue (after the doors open; gone for good after ~100px of scrolling or a tap)
+   * ------------------------------------------------------------------ */
+  const HINT_HIDE_AT = 100; // px scrolled
+  let hintDone = false;
+
+  function dismissHint() {
+    if (hintDone) return;
+    hintDone = true;
+    window.removeEventListener("scroll", onHintScroll);
+    scrollHint.classList.remove("is-shown");
+    setTimeout(() => { scrollHint.hidden = true; }, 950);
+  }
+
+  function onHintScroll() {
+    if (window.scrollY > HINT_HIDE_AT) dismissHint();
+  }
+
+  function showHint() {
+    if (hintDone || window.scrollY > HINT_HIDE_AT) return;
+    scrollHint.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => scrollHint.classList.add("is-shown")));
+    window.addEventListener("scroll", onHintScroll, { passive: true });
+  }
+
+  scrollHint.addEventListener("click", () => {
+    // The invitation opens at the top of the page, so bring its first line ("With blessings and
+    // great joy") up near the top edge: the whole invitation text then sits in view.
+    const first = $("#invite .eyebrow");
+    dismissHint();
+    if (first) {
+      const top = Math.max(0, window.scrollY + first.getBoundingClientRect().top - 24);
+      window.scrollTo({ top, behavior: reduced.matches ? "auto" : "smooth" });
+    }
+    const h = $("#inviteTitle");
+    if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+  });
+
+  /* ------------------------------------------------------------------ *
    * 10 · the door-opening sequence
    * ------------------------------------------------------------------ */
   let entered = false;
@@ -554,6 +593,7 @@ function eventDateParts(isoDate) {
       gate.hidden = true;
       const h = $("#inviteTitle");
       if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+      showHint();
     }, t.gone);
   }
 

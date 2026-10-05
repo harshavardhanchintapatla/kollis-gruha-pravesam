@@ -508,6 +508,23 @@ html.is-entered .cp { animation: drift var(--t) linear var(--dl) infinite; }
   animation: fall var(--dur) cubic-bezier(0.3, 0.1, 0.5, 1) var(--dl) both;
 }
 
+/* scroll cue: fixed, bottom centre, kept clear of the music button (right) by a symmetrical 84px margin (16px gap at 360px) */
+.scroll-hint {
+  position: fixed; z-index: 80; left: 50%; bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  width: max-content; max-width: min(300px, calc(100vw - 168px)); padding: 7px 12px 4px; margin: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 1px; text-align: center; cursor: pointer;
+  color: var(--brass-dark); font: inherit; -webkit-tap-highlight-color: transparent;
+  background: rgba(247, 240, 223, 0.9); border: 1px solid rgba(176, 138, 62, 0.5); border-radius: 4px;
+  box-shadow: 0 0 14px 2px rgba(220, 195, 132, 0.35);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  opacity: 0; transform: translate(-50%, 6px); transition: opacity 0.9s ease, transform 0.9s var(--ease);
+}
+.scroll-hint[hidden] { display: none; }
+.scroll-hint.is-shown { opacity: 1; transform: translate(-50%, 0); }
+.scroll-hint__en { font-family: var(--f-display); font-style: italic; font-weight: 500; font-size: 0.95rem; line-height: 1.25; }
+.scroll-hint__te { font-family: var(--f-te); font-size: 0.74rem; line-height: 1.5; color: var(--maroon); text-wrap: balance; }
+.scroll-hint__chev { width: 16px; height: 11px; margin-top: 1px; animation: hint-bob 2.4s ease-in-out infinite; }
+
 /* ---------- 8 · small interactions ---------- */
 .flame { animation: flicker 2.6s ease-in-out infinite; transform-origin: 0 0; }
 .lamp__glow { animation: glow 3.4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
@@ -516,6 +533,7 @@ html.is-entered .cp { animation: drift var(--t) linear var(--dl) infinite; }
 .scene:not(.is-onscreen) :is(.flame, .lamp__glow, .bloom svg, .rangoli__halo, .scroll-cue span::after) { animation-play-state: paused; }
 
 /* ---------- keyframes ---------- */
+@keyframes hint-bob { 0%, 100% { transform: translateY(-2px); opacity: 0.55; } 50% { transform: translateY(3px); opacity: 1; } }
 @keyframes flicker {
   0%, 100% { transform: scale(1, 1) skewX(0deg); }
   20% { transform: scale(0.94, 1.07) skewX(-2.5deg); }
@@ -577,7 +595,8 @@ html.is-entered .cp { animation: drift var(--t) linear var(--dl) infinite; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .flame, .lamp__glow, .bell, .bloom svg, .courtyard__sun, .courtyard__sprig svg, .audio-btn__pulse,
-  .scroll-cue span::after, .rangoli__halo, .cta__glow, .gate__rays { animation: none !important; }
+  .scroll-cue span::after, .rangoli__halo, .cta__glow, .gate__rays, .scroll-hint__chev { animation: none !important; }
+  .scroll-hint { transform: translateX(-50%); transition: opacity 0.6s ease; }
   .is-bright .flame, .cta:hover .flame, .cta:focus-visible .flame, .cta:active .flame, .bloom.is-nudged svg { animation: none !important; }
   .bloom.is-nudged svg { transform: scale(1.14); transition: transform 0.3s ease; }   /* brief, non-looping feedback */
   .cp, .scroll-cue { display: none; }
